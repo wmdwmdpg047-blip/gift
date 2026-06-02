@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>欢迎来到这世界 - 音乐拍立得</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=Zeyada&display=swap" rel="stylesheet">
+<style>
+  @font-face{font-family:'Kuaixie';src:url('/static/快去写作业CJK.ttf') format('truetype')}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Noto Serif SC',serif;
+    background:#2a2a2a;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .handwriting{font-family:'Zeyada',cursive;letter-spacing:.5px}
+  .postcard{
+    width:874px;aspect-ratio:874/402;
+    position:relative;overflow:hidden;border-radius:8px;
+    box-shadow:0 15px 50px rgba(0,0,0,0.4);background:#f5f0e8;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.08'/%3E%3C/svg%3E");
+    font-size:1em;
+  }
+  .header{position:absolute;top:2.8em;left:4em;font-size:.73em;color:#8b7355;letter-spacing:1px;line-height:1.8}
+  .header-row{display:flex;align-items:baseline;margin-bottom:2px}
+  .header-label{width:5em;flex-shrink:0}
+  .header-text{font-size:1.2em;color:#5c4a3d;margin-left:.5em}
+  .photo-area{
+    position:absolute;left:4em;top:5.8em;
+    width:34.2%;aspect-ratio:4/3;max-height:62%;
+    background:#fff;padding:.6em;border-radius:8px;
+    box-shadow:3px 3px 15px rgba(0,0,0,0.08);transform:rotate(-1deg);overflow:hidden;
+  }
+  .photo-area img{width:100%;height:100%;object-fit:cover;filter:sepia(10%) contrast(98%)}
+  .content-area{position:absolute;left:45%;right:4em;top:5.3em}
+  .location{
+    font-family:'Kuaixie','Noto Serif SC',serif;font-size:2em;color:#5c4a3d;margin-bottom:.5em;transform:rotate(-2deg);display:inline-block;
+  }
+  .journal{
+    font-family:'Noto Serif SC',serif;font-size:.95em;line-height:1.9;color:#6b5a4a;
+    padding-left:.8em;border-left:2px solid #d4c9bc;letter-spacing:.3px;
+  }
+  .stamp{
+    position:absolute;top:2.5em;right:3.5em;
+    width:6.5em;height:6.5em;
+    border:2px solid #c75b39;border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transform:rotate(-12deg);opacity:.9;
+    box-shadow:2px 2px 10px rgba(0,0,0,0.1);
+  }
+  .stamp::before{
+    content:'';position:absolute;top:.5em;left:.5em;right:.5em;bottom:.5em;
+    border:1px solid #c75b39;border-radius:50%;opacity:.6;
+  }
+  .stamp-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+  .stamp-text{font-size:.7em;color:#c75b39;letter-spacing:2px;font-weight:bold;margin-bottom:.2em}
+  .stamp-icon{font-size:1.4em;color:#c75b39}
+  .deco-sticker{
+    position:absolute;bottom:3.3em;right:1.8em;
+    width:2.4em;height:2.4em;background:#fff;border-radius:50%;
+    box-shadow:2px 2px 8px rgba(0,0,0,0.08);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.15em;transform:rotate(8deg);color:#c75b39;
+  }
+  .player{
+    position:absolute;bottom:2em;left:4em;right:5.7em;
+    display:flex;align-items:center;gap:1em;
+  }
+  .play-btn{
+    width:2.5em;height:2.5em;background:#c75b39;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;border:none;flex-shrink:0;outline:none;
+  }
+  .play-btn .icon-play{
+    width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;
+    border-left:10px solid #fff;margin-left:3px;
+  }
+  .play-btn .icon-pause{
+    display:none;width:12px;height:12px;
+    background:repeating-linear-gradient(90deg,#fff 0px,#fff 4px,transparent 4px,transparent 6px);
+  }
+  .play-btn.playing .icon-play{display:none}
+  .play-btn.playing .icon-pause{display:block}
+  .progress-bg{flex:1;height:4px;background:#e0d5c8;border-radius:2px;overflow:hidden;cursor:pointer}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#c75b39,#e07a5f);border-radius:2px;transition:width .1s linear}
+  .time{font-size:.8em;color:#8b7355;letter-spacing:1px;flex-shrink:0;min-width:4.5em}
+  .footer{text-align:center;color:#666;font-size:.75em;margin-top:.8em}
+  @media(orientation:portrait){
+    .postcard{width:100vw;min-height:100vh;height:auto;border-radius:0;display:flex;flex-direction:column;align-items:center;padding:6vh 5vw 2em}
+    body{padding:0}
+    .header,.stamp,.deco-sticker{display:none}
+    .photo-area{position:static;width:88%;aspect-ratio:4/3;margin:1.5em 0 .8em;transform:none}
+    .content-area{position:static;width:88%;text-align:center}
+    .player{position:static;width:88%;margin-top:1.6em;margin-bottom:1.5em}
+    .footer{position:static;margin-top:auto;padding:1em 0}
+    .rotate-hint{display:none}
+  }
+  @media(orientation:landscape){
+    .postcard{width:100vw;height:100vh;border-radius:0;font-size:calc(100vw / 874 * 1em)}
+    body{padding:0}
+    .footer{position:fixed;bottom:4px;z-index:10;width:100%}
+    .rotate-hint{display:none}
+  }
+  .rotate-hint{
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.9);z-index:999;
+    flex-direction:column;align-items:center;justify-content:center;
+    color:#fff;font-size:1.2em;letter-spacing:2px;
+  }
+  .rotate-hint .icon{font-size:3em;margin-bottom:.5em;animation:sway 1.5s ease-in-out infinite}
+  @keyframes sway{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<div class="rotate-hint"><span class="icon">📱</span>请旋转手机至横屏</div>
+<div class="postcard">
+  <div class="header">
+    <div class="header-row">
+      <span class="header-label">Date</span>
+      <span class="header-text">2026.06.02</span>
+    </div>
+    <div class="header-row">
+      <span class="header-label">Location</span>
+      <span class="header-text handwriting" style="font-size:1.3em">新生之光</span>
+    </div>
+  </div>
+  <div class="photo-area">
+    <img src="./_photo_resized.jpg" alt="欢迎来到这世界">
+  </div>
+  <div class="content-area">
+    <div class="location handwriting">欢迎来到这世界</div>
+    <div class="journal">晨光轻抚新生的脸庞，温柔铺满希望<br>小小的手，紧握世界的入口<br>白色灯光下，宁静是生命的乐章<br>心跳声穿透无菌室，赤诚而温暖<br>每一声啼哭，都唱出生命的礼赞</div>
+  </div>
+  <div class="stamp">
+    <div class="stamp-inner">
+      <span class="stamp-text">NFC</span>
+      <span class="stamp-icon">✦</span>
+    </div>
+  </div>
+  <div class="deco-sticker">♥</div>
+  <div class="player">
+    <button class="play-btn" id="playBtn" onclick="togglePlay(event)">
+      <span class="icon-play"></span>
+      <span class="icon-pause"></span>
+    </button>
+    <div class="progress-bg" id="progressBg" onclick="seek(event)">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <span class="time" id="timeDisplay">0:00 / 0:00</span>
+  </div>
+</div>
+<div class="footer">Created by 音乐拍立得</div>
+<audio id="audio" src="./欢迎来到这世界.wav" preload="auto" playsinline webkit-playsinline x5-playsinline></audio>
+<script>
+  var audio=document.getElementById('audio');
+  var btn=document.getElementById('playBtn');
+  var fill=document.getElementById('progressFill');
+  var timeEl=document.getElementById('timeDisplay');
+  var bg=document.getElementById('progressBg');
+  var everPlayed=false;
+
+  function fmt(t){var m=Math.floor(t/60);var s=Math.floor(t%60);return m+':'+(s<10?'0':'')+s}
+  audio.onloadedmetadata=function(){timeEl.textContent='0:00 / '+fmt(audio.duration)}
+  audio.ontimeupdate=function(){var p=audio.duration?(audio.currentTime/audio.duration*100):0;fill.style.width=p+'%';timeEl.textContent=fmt(audio.currentTime)+' / '+fmt(audio.duration)}
+  audio.onended=function(){btn.classList.remove('playing')}
+  audio.onerror=function(){timeEl.textContent='音频加载失败'}
+
+  function doPlay(){
+    var p=audio.play();
+    if(p!==undefined){
+      p.then(function(){
+        btn.classList.add('playing');
+        everPlayed=true;
+      }).catch(function(e){
+        timeEl.textContent='轻触 ▶ 播放';
+      });
+    }else{
+      btn.classList.add('playing');
+      everPlayed=true;
+    }
+  }
+
+  function togglePlay(e){e.stopPropagation();if(audio.paused){doPlay()}else{audio.pause();btn.classList.remove('playing')}}
+  function seek(e){e.stopPropagation();var rect=bg.getBoundingClientRect();var p=(e.clientX-rect.left)/rect.width;audio.currentTime=p*audio.duration}
+
+  function onInteraction(e){
+    if(!e.target.closest('#playBtn')&&!e.target.closest('#progressBg')&&audio.paused&&!everPlayed){
+      doPlay();
+    }
+  }
+  document.addEventListener('click',onInteraction);
+  document.addEventListener('touchstart',onInteraction);
+
+  // PC端自动播放
+  try{audio.play().then(function(){btn.classList.add('playing');everPlayed=true}).catch(function(){})}catch(e){}
+</script>
+</body>
+</html>
